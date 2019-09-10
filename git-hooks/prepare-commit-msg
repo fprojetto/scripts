@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# try to get ticket from branch
+TICKET_FROM_BRANCH_NAME=$(git branch | grep \* | cut -d ' ' -f2 | cut -d '-' -f1)
+re='^[0-9]+$'
+if ! [[ $TICKET_FROM_BRANCH_NAME =~ $re ]]; 
+then
+   TICKET_FROM_BRANCH_NAME=""
+fi
+
+# set commit ticket to the one from the branch or env variable
+if [ ! -z "$TICKET_FROM_BRANCH_NAME" ];
+then
+  COMMIT_TICKET=${TICKET_FROM_BRANCH_NAME}
+elif [ ! -z "$TICKET" ]
+then
+  COMMIT_TICKET=${TICKET}
+else
+  echo "cannot derive ticket id. Skip adding ticket info."
+  exit 0
+fi 
+ 
+COMMIT_FILE=$1
+TMP_FILE=/tmp/prepare-commit-hook-commit-msg
+
+# add ticket number and link to pivotal to the commit message 
+touch $TMP_FILE
+awk -v ticket="$COMMIT_TICKET" 'BEGIN {print "feat: <msg>\n\n[#" ticket "](https://www.pivotaltracker.com/story/show/" ticket ")"} {print $0}' $COMMIT_FILE > $TMP_FILE
+cat $TMP_FILE > $COMMIT_FILE
+
+exit 0
