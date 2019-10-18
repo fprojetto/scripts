@@ -25,7 +25,7 @@ TMP_FILE=/tmp/prepare-commit-hook-commit-msg
 
 # add ticket number and link to pivotal to the commit message 
 touch $TMP_FILE
-awk -v ticket="$COMMIT_TICKET" 'BEGIN {print "feat: <msg>\n\n[#" ticket "](https://www.pivotaltracker.com/story/show/" ticket ")"} {print $0}' $COMMIT_FILE > $TMP_FILE
+awk -v ticket="$COMMIT_TICKET" 'BEGIN {print "\n[#" ticket "](https://www.pivotaltracker.com/story/show/" ticket ")"} {print $0}' $COMMIT_FILE > $TMP_FILE
 cat $TMP_FILE > $COMMIT_FILE
 
 exit 0
